@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>SoundStik</title>
 
@@ -143,12 +141,12 @@
       cursor: pointer;
     }
 
-#previewButton {
-  margin-bottom: 12px;
-  background: #ffffff;
-  color: #222222;
-  border: 1px solid #cccccc;
-}
+    #previewButton {
+      margin-bottom: 12px;
+      background: #ffffff;
+      color: #222222;
+      border: 1px solid #cccccc;
+    }
 
     .create-button:disabled {
       background: #cccccc;
@@ -199,11 +197,7 @@
           Pilih Video
         </label>
 
-        <input
-        id="videoInput"
-        type="file"
-        accept="video/mp4,video/webm"
-        >
+        <input id="videoInput" type="file" accept="video/mp4,video/webm">
 
 
         <p class="file-name" id="videoName">
@@ -218,11 +212,7 @@
           Pilih audio
         </label>
 
-        <input
-          id="audioInput"
-          type="file"
-          accept="audio/*"
-        >
+        <input id="audioInput" type="file" accept="audio/*">
 
         <p class="file-name" id="audioName">
           Kosongkan untuk menggunakan suara asli video
@@ -233,32 +223,19 @@
         <p class="preview-label">Pratinjau</p>
 
         <div class="video-wrapper">
-        <video
-        id="videoPreview"
-        loop
-        playsinline
-        controls>
-        </video>
+          <video id="videoPreview" loop playsinline controls>
+          </video>
 
         </div>
 
         <audio id="audioPreview" controls></audio>
-        <button
-          class="create-button"
-          id="previewButton"
-          type="button"
-            >   
+        <button class="create-button" id="previewButton" type="button">
           Putar Pratinjau
         </button>
 
       </div>
 
-      <button
-        class="create-button"
-        id="createButton"
-        type="button"
-        disabled
-      >
+      <button class="create-button" id="createButton" type="button" disabled>
         Buat Stiker
       </button>
 
@@ -270,97 +247,53 @@
     </p>
   </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/umd/ffmpeg.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/umd/ffmpeg.min.js"></script>
 
   <script>
-  const videoInput = document.getElementById("videoInput");
-  const audioInput = document.getElementById("audioInput");
+    const videoInput = document.getElementById("videoInput");
+    const audioInput = document.getElementById("audioInput");
 
-  const videoName = document.getElementById("videoName");
-  const audioName = document.getElementById("audioName");
+    const videoName = document.getElementById("videoName");
+    const audioName = document.getElementById("audioName");
 
-  const videoPreview = document.getElementById("videoPreview");
-  const audioPreview = document.getElementById("audioPreview");
+    const videoPreview = document.getElementById("videoPreview");
+    const audioPreview = document.getElementById("audioPreview");
 
-  const preview = document.getElementById("preview");
-  const createButton = document.getElementById("createButton");
-  const statusBox = document.getElementById("status");
-  const previewButton = document.getElementById("previewButton");
-
-
-  let selectedVideo = null;
-  let selectedAudio = null;
-  let currentVideoUrl = null;
-  let currentAudioUrl = null;
-  let ffmpeg = null;
-let ffmpegLoaded = false;
+    const preview = document.getElementById("preview");
+    const createButton = document.getElementById("createButton");
+    const statusBox = document.getElementById("status");
+    const previewButton = document.getElementById("previewButton");
 
 
-  videoInput.addEventListener("change", function () {
-    const file = videoInput.files[0];
+    let selectedVideo = null;
+    let selectedAudio = null;
+    let currentVideoUrl = null;
+    let currentAudioUrl = null;
+    let ffmpeg = null;
+    let ffmpegLoaded = false;
 
-    hideStatus();
 
-    if (!file) {
-      return;
-    }
+    videoInput.addEventListener("change", function () {
+      const file = videoInput.files[0];
 
-    const allowedTypes = [
-      "video/mp4",
-      "video/webm"
-    ];
+      hideStatus();
 
-    if (!allowedTypes.includes(file.type)) {
-      selectedVideo = null;
-      videoInput.value = "";
-      videoName.textContent = "Format video tidak didukung";
+      if (!file) {
+        return;
+      }
 
-      showStatus(
-        "Gunakan video berformat MP4 atau WebM.",
-        true
-      );
+      const allowedTypes = [
+        "video/mp4",
+        "video/webm"
+      ];
 
-      updatePage();
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      selectedVideo = null;
-      videoInput.value = "";
-      videoName.textContent = "Ukuran video terlalu besar";
-
-      showStatus(
-        "Ukuran video maksimal 10 MB.",
-        true
-      );
-
-      updatePage();
-      return;
-    }
-
-    if (currentVideoUrl) {
-      URL.revokeObjectURL(currentVideoUrl);
-    }
-
-    selectedVideo = file;
-    videoName.textContent = file.name;
-
-    currentVideoUrl = URL.createObjectURL(file);
-    videoPreview.src = currentVideoUrl;
-    videoPreview.load();
-
-    videoPreview.onloadedmetadata = function () {
-      if (videoPreview.duration > 6) {
+      if (!allowedTypes.includes(file.type)) {
         selectedVideo = null;
         videoInput.value = "";
-        videoName.textContent = "Durasi video terlalu panjang";
-
-        videoPreview.pause();
-        videoPreview.removeAttribute("src");
-        videoPreview.load();
+        videoName.textContent = "Format video tidak didukung";
 
         showStatus(
-          "Durasi video maksimal 6 detik. Potong video terlebih dahulu.",
+          "Gunakan video berformat MP4 atau WebM.",
           true
         );
 
@@ -368,227 +301,315 @@ let ffmpegLoaded = false;
         return;
       }
 
-      updatePage();
-    };
+      if (file.size > 10 * 1024 * 1024) {
+        selectedVideo = null;
+        videoInput.value = "";
+        videoName.textContent = "Ukuran video terlalu besar";
 
-    videoPreview.onerror = function () {
-      selectedVideo = null;
-      videoInput.value = "";
-      videoName.textContent = "Video gagal dibaca";
+        showStatus(
+          "Ukuran video maksimal 10 MB.",
+          true
+        );
 
-      showStatus(
-        "Video tidak dapat diputar. Coba gunakan video MP4 lain.",
-        true
-      );
+        updatePage();
+        return;
+      }
 
-      updatePage();
-    };
-  });
+      if (currentVideoUrl) {
+        URL.revokeObjectURL(currentVideoUrl);
+      }
 
-  audioInput.addEventListener("change", function () {
-    const file = audioInput.files[0];
+      selectedVideo = file;
+      videoName.textContent = file.name;
 
-    hideStatus();
+      currentVideoUrl = URL.createObjectURL(file);
+      videoPreview.src = currentVideoUrl;
+      videoPreview.load();
 
-    if (!file) {
-      selectedAudio = null;
-      audioName.textContent = "Belum ada audio dipilih";
-      updatePage();
-      return;
-    }
+      videoPreview.onloadedmetadata = function () {
+        if (videoPreview.duration > 6) {
+          selectedVideo = null;
+          videoInput.value = "";
+          videoName.textContent = "Durasi video terlalu panjang";
 
-    if (file.size > 15 * 1024 * 1024) {
-      selectedAudio = null;
-      audioInput.value = "";
-      audioName.textContent = "Ukuran audio terlalu besar";
+          videoPreview.pause();
+          videoPreview.removeAttribute("src");
+          videoPreview.load();
 
-      showStatus(
-        "Ukuran audio maksimal 15 MB.",
-        true
-      );
+          showStatus(
+            "Durasi video maksimal 6 detik. Potong video terlebih dahulu.",
+            true
+          );
 
-      updatePage();
-      return;
-    }
+          updatePage();
+          return;
+        }
 
-    if (currentAudioUrl) {
-      URL.revokeObjectURL(currentAudioUrl);
-    }
+        updatePage();
+      };
 
-    selectedAudio = file;
-    audioName.textContent = file.name;
+      videoPreview.onerror = function () {
+        selectedVideo = null;
+        videoInput.value = "";
+        videoName.textContent = "Video gagal dibaca";
 
-    currentAudioUrl = URL.createObjectURL(file);
-    audioPreview.src = currentAudioUrl;
-audioPreview.style.display = "block";
-audioPreview.load();
+        showStatus(
+          "Video tidak dapat diputar. Coba gunakan video MP4 lain.",
+          true
+        );
 
-videoPreview.muted = true;
-
-updatePage();
-
-  });
-
-async function loadFFmpeg() {
-  if (ffmpegLoaded) {
-    return true;
-  }
-
-  showStatus(
-    "Menyiapkan mesin pemrosesan. Mohon tunggu...",
-    false
-  );
-
-  try {
-    const FFmpegClass = FFmpegWASM.FFmpeg;
-    const toBlobURL = async function (url, mimeType) {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(
-      "Gagal mengunduh FFmpeg: HTTP " + response.status
-    );
-  }
-
-  const data = await response.arrayBuffer();
-  const blob = new Blob([data], { type: mimeType });
-
-  return URL.createObjectURL(blob);
-  };
-
-
-    ffmpeg = new FFmpegClass();
-
-    ffmpeg.on("log", function (event) {
-      console.log(event.message);
+        updatePage();
+      };
     });
 
-    const localWorkerURL = new URL(
-  "./ffmpeg-worker.js",
-  window.location.href
-).href;
+    audioInput.addEventListener("change", function () {
+      const file = audioInput.files[0];
 
-const localCoreURL = new URL(
-  "./ffmpeg-core.js",
-  window.location.href
-).href;
+      hideStatus();
 
-const localWasmURL = new URL(
-  "./ffmpeg-core.wasm",
-  window.location.href
-).href;
+      if (!file) {
+        selectedAudio = null;
+        audioName.textContent = "Belum ada audio dipilih";
+        updatePage();
+        return;
+      }
 
-await ffmpeg.load({
-  classWorkerURL: localWorkerURL,
-  coreURL: localCoreURL,
-  wasmURL: localWasmURL
-});
+      if (file.size > 15 * 1024 * 1024) {
+        selectedAudio = null;
+        audioInput.value = "";
+        audioName.textContent = "Ukuran audio terlalu besar";
 
-    ffmpegLoaded = true;
+        showStatus(
+          "Ukuran audio maksimal 15 MB.",
+          true
+        );
 
-    showStatus(
-      "Mesin pemrosesan siap.",
-      false
-    );
+        updatePage();
+        return;
+      }
 
-    return true;
-    } catch (error) {
-      console.error("FFmpeg gagal dimuat:", error);
-    
-      const errorMessage =
-        error && error.message
-          ? error.message
-          : String(error);
-    
+      if (currentAudioUrl) {
+        URL.revokeObjectURL(currentAudioUrl);
+      }
+
+      selectedAudio = file;
+      audioName.textContent = file.name;
+
+      currentAudioUrl = URL.createObjectURL(file);
+      audioPreview.src = currentAudioUrl;
+      audioPreview.style.display = "block";
+      audioPreview.load();
+
+      videoPreview.muted = true;
+
+      updatePage();
+
+    });
+
+    async function loadFFmpeg() {
+      if (ffmpegLoaded) {
+        return true;
+      }
+
       showStatus(
-        "FFmpeg gagal: " + errorMessage,
-        true
+        "Menyiapkan mesin pemrosesan. Mohon tunggu...",
+        false
       );
-    
-      return false;
+
+      try {
+        const FFmpegClass = FFmpegWASM.FFmpeg;
+        const toBlobURL = async function (url, mimeType) {
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            throw new Error(
+              "Gagal mengunduh FFmpeg: HTTP " + response.status
+            );
+          }
+
+          const data = await response.arrayBuffer();
+          const blob = new Blob([data], { type: mimeType });
+
+          return URL.createObjectURL(blob);
+        };
+
+
+        ffmpeg = new FFmpegClass();
+
+        ffmpeg.on("log", function (event) {
+          console.log(event.message);
+        });
+
+        const localWorkerURL = new URL(
+          "./ffmpeg-worker.js",
+          window.location.href
+        ).href;
+
+        const localCoreURL = new URL(
+          "./ffmpeg-core.js",
+          window.location.href
+        ).href;
+
+        const localWasmURL = new URL(
+          "./ffmpeg-core.wasm",
+          window.location.href
+        ).href;
+
+        await ffmpeg.load({
+          classWorkerURL: localWorkerURL,
+          coreURL: localCoreURL,
+          wasmURL: localWasmURL
+        });
+
+        ffmpegLoaded = true;
+
+        showStatus(
+          "Mesin pemrosesan siap.",
+          false
+        );
+
+        return true;
+      } catch (error) {
+        console.error("FFmpeg gagal dimuat:", error);
+
+        const errorMessage =
+          error && error.message
+            ? error.message
+            : String(error);
+
+        showStatus(
+          "FFmpeg gagal: " + errorMessage,
+          true
+        );
+
+        return false;
+      }
     }
+
+    function updatePage() {
+      if (selectedVideo) {
+        preview.style.display = "block";
+      } else {
+        preview.style.display = "none";
+      }
+
+      createButton.disabled = !selectedVideo;
     }
 
-  function updatePage() {
-    if (selectedVideo) {
-      preview.style.display = "block";
-    } else {
-      preview.style.display = "none";
+    function showStatus(message, isError) {
+      statusBox.textContent = message;
+      statusBox.style.display = "block";
+
+      if (isError) {
+        statusBox.classList.add("error");
+      } else {
+        statusBox.classList.remove("error");
+      }
     }
 
-    createButton.disabled = !selectedVideo;
-  }
-
-  function showStatus(message, isError) {
-    statusBox.textContent = message;
-    statusBox.style.display = "block";
-
-    if (isError) {
-      statusBox.classList.add("error");
-    } else {
+    function hideStatus() {
+      statusBox.style.display = "none";
       statusBox.classList.remove("error");
     }
-  }
 
-  function hideStatus() {
-    statusBox.style.display = "none";
-    statusBox.classList.remove("error");
-  }
+    previewButton.addEventListener("click", async function () {
+      videoPreview.pause();
+      audioPreview.pause();
 
-previewButton.addEventListener("click", async function () {
-  videoPreview.pause();
-  audioPreview.pause();
+      videoPreview.currentTime = 0;
 
-  videoPreview.currentTime = 0;
+      if (selectedAudio) {
+        audioPreview.currentTime = 0;
+        videoPreview.muted = true;
 
-  if (selectedAudio) {
-    audioPreview.currentTime = 0;
-    videoPreview.muted = true;
+        try {
+          await audioPreview.play();
+          await videoPreview.play();
+        } catch (error) {
+          showStatus(
+            "Audio gagal diputar. Tekan Play pada pemutar audio untuk menguji filenya.",
+            true
+          );
+        }
+      } else {
+        videoPreview.muted = false;
 
-    try {
-      await audioPreview.play();
-      await videoPreview.play();
-    } catch (error) {
+        try {
+          await videoPreview.play();
+        } catch (error) {
+          showStatus(
+            "Tekan Play pada video untuk memutarnya.",
+            true
+          );
+        }
+      }
+    });
+
+    createButton.addEventListener("click", async function () {
+      if (!selectedVideo) {
+        showStatus("Pilih video terlebih dahulu.", true);
+        return;
+      }
+
+      createButton.disabled = true;
+      createButton.textContent = "Memproses...";
+
       showStatus(
-        "Audio gagal diputar. Tekan Play pada pemutar audio untuk menguji filenya.",
-        true
-      );
-    }
-  } else {
-    videoPreview.muted = false;
-
-    try {
-      await videoPreview.play();
-    } catch (error) {
-      showStatus(
-        "Tekan Play pada video untuk memutarnya.",
-        true
-      );
-    }
-  }
-});
-
-  createButton.addEventListener("click", function () {
-    if (!selectedVideo) {
-      showStatus(
-        "Pilih video terlebih dahulu.",
-        true
-      );
-      return;
-    }
-
-    if (selectedAudio) {
-      showStatus(
-        "Video dan audio tambahan siap diproses.",
+        "Video sedang diproses dengan FFmpeg...",
         false
       );
-    } else {
-      showStatus(
-        "Video dengan suara asli siap diproses.",
-        false
-      );
-    }
-  });
-</script>
+
+      const formData = new FormData();
+      formData.append("video", selectedVideo);
+
+      if (selectedAudio) {
+        formData.append("audio", selectedAudio);
+      }
+
+      try {
+        const response = await fetch("/api/process", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          const result = await response.json();
+
+          throw new Error(
+            result.error || "Pemrosesan gagal."
+          );
+        }
+
+        const outputBlob = await response.blob();
+        const downloadUrl = URL.createObjectURL(outputBlob);
+        const downloadLink = document.createElement("a");
+
+        downloadLink.href = downloadUrl;
+        downloadLink.download = "soundstik.mp4";
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+
+        setTimeout(function () {
+          URL.revokeObjectURL(downloadUrl);
+        }, 1000);
+
+        showStatus(
+          "Video berhasil diproses dan diunduh.",
+          false
+        );
+      } catch (error) {
+        showStatus(
+          error.message || "Terjadi kesalahan.",
+          true
+        );
+      } finally {
+        createButton.disabled = false;
+        createButton.textContent = "Buat Stiker";
+      }
+    });
+  </script>
 </body>
+
 </html>
