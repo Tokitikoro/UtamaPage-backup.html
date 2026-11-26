@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>SoundStik</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px 16px;
+      background: #eeeeee;
+      color: #242424;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #666666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .card {
+      padding: 20px;
+      border: 1px solid #dddddd;
+      border-radius: 14px;
+      background: #ffffff;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field-title {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .upload-button {
+      width: 100%;
+      display: block;
+      padding: 14px;
+      border: 1px solid #cccccc;
+      border-radius: 9px;
+      background: #f8f8f8;
+      color: #333333;
+      font-size: 14px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .upload-button:active {
+      background: #e8e8e8;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-name {
+      margin: 8px 0 0;
+      color: #777777;
+      font-size: 12px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .preview {
+      display: none;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .preview-label {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .video-wrapper {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      overflow: hidden;
+      border: 1px solid #dddddd;
+      border-radius: 12px;
+      background: #f4f4f4;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    audio {
+      display: none;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .create-button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 9px;
+      background: #222222;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+#previewButton {
+  margin-bottom: 12px;
+  background: #ffffff;
+  color: #222222;
+  border: 1px solid #cccccc;
+}
+
+    .create-button:disabled {
+      background: #cccccc;
+      color: #777777;
+      cursor: not-allowed;
+    }
+
+    .status {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f1f1f1;
+      color: #444444;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .error {
+      color: #b42318;
+      background: #fff0ee;
+    }
+
+    .note {
+      margin: 14px 2px 0;
+      color: #777777;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header>
+      <h1>SoundStik</h1>
+
+      <p class="subtitle">
+        Pilih Video dan audio untuk membuat Stiker suara.
+      </p>
+    </header>
+
+    <section class="card">
+      <div class="field">
+        <span class="field-title">Video Stiker</span>
+
+        <label class="upload-button" for="videoInput">
+          Pilih Video
+        </label>
+
+        <input
+        id="videoInput"
+        type="file"
+        accept="video/mp4,video/webm"
+        >
+
+
+        <p class="file-name" id="videoName">
+          Belum ada Video dipilih
+        </p>
+      </div>
+
+      <div class="field">
+        <span class="field-title">Audio tambahan(opsional)</span>
+
+        <label class="upload-button" for="audioInput">
+          Pilih audio
+        </label>
+
+        <input
+          id="audioInput"
+          type="file"
+          accept="audio/*"
+        >
+
+        <p class="file-name" id="audioName">
+          Kosongkan untuk menggunakan suara asli video
+        </p>
+      </div>
+
+      <div class="preview" id="preview">
+        <p class="preview-label">Pratinjau</p>
+
+        <div class="video-wrapper">
+        <video
+        id="videoPreview"
+        loop
+        playsinline
+        controls>
+        </video>
+
+        </div>
+
+        <audio id="audioPreview" controls></audio>
+        <button
+          class="create-button"
+          id="previewButton"
+          type="button"
+            >   
+          Putar Pratinjau
+        </button>
+
+      </div>
+
+      <button
+        class="create-button"
+        id="createButton"
+        type="button"
+        disabled
+      >
+        Buat Stiker
+      </button>
+
+      <div class="status" id="status"></div>
+    </section>
+
+    <p class="note">
+      Video dan audio masih diproses langsung di perangkat.
+    </p>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/umd/ffmpeg.min.js"></script>
+
+  <script>
+  const videoInput = document.getElementById("videoInput");
+  const audioInput = document.getElementById("audioInput");
+
+  const videoName = document.getElementById("videoName");
+  const audioName = document.getElementById("audioName");
+
+  const videoPreview = document.getElementById("videoPreview");
+  const audioPreview = document.getElementById("audioPreview");
+
+  const preview = document.getElementById("preview");
+  const createButton = document.getElementById("createButton");
+  const statusBox = document.getElementById("status");
+  const previewButton = document.getElementById("previewButton");
+
+
+  let selectedVideo = null;
+  let selectedAudio = null;
+  let currentVideoUrl = null;
+  let currentAudioUrl = null;
+  let ffmpeg = null;
+let ffmpegLoaded = false;
+
+
+  videoInput.addEventListener("change", function () {
+    const file = videoInput.files[0];
+
+    hideStatus();
+
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = [
+      "video/mp4",
+      "video/webm"
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      selectedVideo = null;
+      videoInput.value = "";
+      videoName.textContent = "Format video tidak didukung";
+
+      showStatus(
+        "Gunakan video berformat MP4 atau WebM.",
+        true
+      );
+
+      updatePage();
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      selectedVideo = null;
+      videoInput.value = "";
+      videoName.textContent = "Ukuran video terlalu besar";
+
+      showStatus(
+        "Ukuran video maksimal 10 MB.",
+        true
+      );
+
+      updatePage();
+      return;
+    }
+
+    if (currentVideoUrl) {
+      URL.revokeObjectURL(currentVideoUrl);
+    }
+
+    selectedVideo = file;
+    videoName.textContent = file.name;
+
+    currentVideoUrl = URL.createObjectURL(file);
+    videoPreview.src = currentVideoUrl;
+    videoPreview.load();
+
+    videoPreview.onloadedmetadata = function () {
+      if (videoPreview.duration > 6) {
+        selectedVideo = null;
+        videoInput.value = "";
+        videoName.textContent = "Durasi video terlalu panjang";
+
+        videoPreview.pause();
+        videoPreview.removeAttribute("src");
+        videoPreview.load();
+
+        showStatus(
+          "Durasi video maksimal 6 detik. Potong video terlebih dahulu.",
+          true
+        );
+
+        updatePage();
+        return;
+      }
+
+      updatePage();
+    };
+
+    videoPreview.onerror = function () {
+      selectedVideo = null;
+      videoInput.value = "";
+      videoName.textContent = "Video gagal dibaca";
+
+      showStatus(
+        "Video tidak dapat diputar. Coba gunakan video MP4 lain.",
+        true
+      );
+
+      updatePage();
+    };
+  });
+
+  audioInput.addEventListener("change", function () {
+    const file = audioInput.files[0];
+
+    hideStatus();
+
+    if (!file) {
+      selectedAudio = null;
+      audioName.textContent = "Belum ada audio dipilih";
+      updatePage();
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      selectedAudio = null;
+      audioInput.value = "";
+      audioName.textContent = "Ukuran audio terlalu besar";
+
+      showStatus(
+        "Ukuran audio maksimal 15 MB.",
+        true
+      );
+
+      updatePage();
+      return;
+    }
+
+    if (currentAudioUrl) {
+      URL.revokeObjectURL(currentAudioUrl);
+    }
+
+    selectedAudio = file;
+    audioName.textContent = file.name;
+
+    currentAudioUrl = URL.createObjectURL(file);
+    audioPreview.src = currentAudioUrl;
+audioPreview.style.display = "block";
+audioPreview.load();
+
+videoPreview.muted = true;
+
+updatePage();
+
+  });
+
+async function loadFFmpeg() {
+  if (ffmpegLoaded) {
+    return true;
+  }
+
+  showStatus(
+    "Menyiapkan mesin pemrosesan. Mohon tunggu...",
+    false
+  );
+
+  try {
+    const FFmpegClass = FFmpegWASM.FFmpeg;
+    const toBlobURL = async function (url, mimeType) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(
+      "Gagal mengunduh FFmpeg: HTTP " + response.status
+    );
+  }
+
+  const data = await response.arrayBuffer();
+  const blob = new Blob([data], { type: mimeType });
+
+  return URL.createObjectURL(blob);
+  };
+
+
+    ffmpeg = new FFmpegClass();
+
+    ffmpeg.on("log", function (event) {
+      console.log(event.message);
+    });
+
+    const localWorkerURL = new URL(
+  "./ffmpeg-worker.js",
+  window.location.href
+).href;
+
+const localCoreURL = new URL(
+  "./ffmpeg-core.js",
+  window.location.href
+).href;
+
+const localWasmURL = new URL(
+  "./ffmpeg-core.wasm",
+  window.location.href
+).href;
+
+await ffmpeg.load({
+  classWorkerURL: localWorkerURL,
+  coreURL: localCoreURL,
+  wasmURL: localWasmURL
+});
+
+    ffmpegLoaded = true;
+
+    showStatus(
+      "Mesin pemrosesan siap.",
+      false
+    );
+
+    return true;
+    } catch (error) {
+      console.error("FFmpeg gagal dimuat:", error);
+    
+      const errorMessage =
+        error && error.message
+          ? error.message
+          : String(error);
+    
+      showStatus(
+        "FFmpeg gagal: " + errorMessage,
+        true
+      );
+    
+      return false;
+    }
+    }
+
+  function updatePage() {
+    if (selectedVideo) {
+      preview.style.display = "block";
+    } else {
+      preview.style.display = "none";
+    }
+
+    createButton.disabled = !selectedVideo;
+  }
+
+  function showStatus(message, isError) {
+    statusBox.textContent = message;
+    statusBox.style.display = "block";
+
+    if (isError) {
+      statusBox.classList.add("error");
+    } else {
+      statusBox.classList.remove("error");
+    }
+  }
+
+  function hideStatus() {
+    statusBox.style.display = "none";
+    statusBox.classList.remove("error");
+  }
+
+previewButton.addEventListener("click", async function () {
+  videoPreview.pause();
+  audioPreview.pause();
+
+  videoPreview.currentTime = 0;
+
+  if (selectedAudio) {
+    audioPreview.currentTime = 0;
+    videoPreview.muted = true;
+
+    try {
+      await audioPreview.play();
+      await videoPreview.play();
+    } catch (error) {
+      showStatus(
+        "Audio gagal diputar. Tekan Play pada pemutar audio untuk menguji filenya.",
+        true
+      );
+    }
+  } else {
+    videoPreview.muted = false;
+
+    try {
+      await videoPreview.play();
+    } catch (error) {
+      showStatus(
+        "Tekan Play pada video untuk memutarnya.",
+        true
+      );
+    }
+  }
+});
+
+  createButton.addEventListener("click", function () {
+    if (!selectedVideo) {
+      showStatus(
+        "Pilih video terlebih dahulu.",
+        true
+      );
+      return;
+    }
+
+    if (selectedAudio) {
+      showStatus(
+        "Video dan audio tambahan siap diproses.",
+        false
+      );
+    } else {
+      showStatus(
+        "Video dengan suara asli siap diproses.",
+        false
+      );
+    }
+  });
+</script>
+</body>
+</html>
