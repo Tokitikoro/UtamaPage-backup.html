@@ -567,7 +567,7 @@
       }
 
       try {
-        const response = await fetch("/api/process", {
+        const response = await fetch("/api/create-assets", {
           method: "POST",
           body: formData
         });
@@ -585,7 +585,7 @@
         const downloadLink = document.createElement("a");
 
         downloadLink.href = downloadUrl;
-        downloadLink.download = "soundstik.mp4";
+        downloadLink.download = "soundstik-assets.zip";
 
         document.body.appendChild(downloadLink);
         downloadLink.click();
@@ -596,7 +596,7 @@
         }, 1000);
 
         showStatus(
-          "Video berhasil diproses dan diunduh.",
+          "Aset stiker berhasil dibuat dan diunduh.",
           false
         );
       } catch (error) {
